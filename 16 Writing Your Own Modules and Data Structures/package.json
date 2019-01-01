@@ -1,0 +1,8 @@
+{
+  "name": "example01dependencies",
+  "version": "0.0.1",
+  "description": "modules for 01_npmUnderscoreExample",
+  "dependencies": {
+    "underscore": "^1.9.1"
+  }
+}

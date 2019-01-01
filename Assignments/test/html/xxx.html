@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Page Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <h1>hi </h1>
+    <div id="div3" style="visibility:hidden">
+        <h1>xxx</h1>
+    </div>    
+</body>
+<script>
+      
+    
+      fetch('http://localhost:3000/xxx.html', {
+    method: 'POST' // request method
+  
+  }).then(function(response) {
+      return response.json();  //resp.jason()  return resp object
+    })
+    .then(function(response) {
+        console.log(typeof response.token)
+      if(response['token']==true){
+              document.getElementById('div3').style = {"visibility":"visible"}
+          }
+      console.log('Success:', JSON.stringify(response))
+       
+  })
+  
+</script>
+</html>

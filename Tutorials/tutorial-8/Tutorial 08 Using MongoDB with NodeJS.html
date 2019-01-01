@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>2406 Tutorial</title>
+<link href="template.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p class="header">COMP 2406 - Fall 2018 Tutorial 08</p>
+<p class="header subheader">Persisting Data with MongoDB and Node.js</p>
+<hr/>
+<p>&copy; L.D. Nel 2018</p>
+<hr />
+<p class="red">Revisions -none yet</p>
+<hr />
+<p class="segment-header">Description:</p>
+<p>The purpose of this tutorial is to get you started with using a MongoDB JSON database to store data and to access it from a Node.js application. Also to introduce the mongoose.js npm client that is very often used in node.js applications that want to access a mongodb database in a schema-oriented way.</p>
+<p>This tutorial has two parts. The first is figuring out how to install mongodb on your own machine and the second part is learning how to use it. You will need to figure this out for your operating environment. Mongodb is already installed on our openstack linux image so you can use that instead of installing on your own machine. (It may well be installed on the Window's lab computers as well -maybe someone can confirm this.)</p>
+<p>We are planning to use a Mongodb database in the base code of assignment 5 so you will need to figure out how to get in installed in whatever environment you plan on doing assignment 5. This tutorial will introduce the main technology added to those of assignment 4 for the last course assignment.</p>
+<p class="red">&nbsp;</p>
+<p class="red">IMPORTANT: This tutorial is meant as a homework assignment and for you to demonstrate your results at your tutorial session. You will not be able to complete it if you only start when you come to the tutorial. You will need to read about and learn those aspects of javascript that pertain to this tutorial on your own and come up with a strategy to solve the problems.</p>
+<p>To get credit for the tutorial you must complete, or make significant progress on, the exercise problems provided and demonstrate your results to the tutorial TA before you leave the tutorial.<br />
+</p>
+<p>&nbsp;</p>
+<hr/>
+<p class="segment-header">Instructions:<br />
+</p>
+<p class="segment-header"><span class="black-bold">MongoDB</span></p>
+<p>MongoDB is the most popular JSON store used with Node.js and many other applications. By JSON store we mean it stores data formatted as JSON-like (Javascript Object Notation) documents. MongoDB is available for several operating systems including Windows, Mac OSX, and Linux. Here, as an exampIe, I describe installing mongo on my Windows 10 machines (fall 2017) and accessing it on the linux open stack image (fall 2018). Things will vary for different platforms. Go through whatever installation is necessary on your own machine before proceeding with the tutorial problems 2-6.</p>
+<p>&nbsp;</p>
+<p class="segment-header">Problem 1) Installing MongoDB and Accessing It</p>
+<p>MongoDB provides several components including: the MongoDB server and a command line client shell to access it. Here we will set up and start the server and then connect to it with the mongo shell client. Later we will access it with a Node.js application.</p>
+<p>To do this tutorial you need MongoDB installed on your computer. You can download the <span class="bold">community edition</span> database for the various platforms here: <a href="https://www.mongodb.com/download-center?jmp=nav#community">https://www.mongodb.com/download-center?jmp=nav#community</a></p>
+<p>&nbsp;</p>
+<p><img src="images/install0.png" width="1079" height="706" alt=""/></p>
+<p>See the documentation supplied by mongodb.com at: <a href="https://docs.mongodb.com/manual">https://docs.mongodb.com/manual/</a></p>
+<p>Installation instructions are in the tutorials tab,  in particular for Windows, follow the instructions here <a href="https://docs.mongodb.com/manual/tutorial/install-mongodb-on-windows">https://docs.mongodb.com/manual/tutorial/install-mongodb-on-windows/</a>. </p>
+<p>If you are using a Mac here is another useful install site. I used the following site to set up my Mac using Homebrew: <a href="https://docs.mongodb.com/manual/tutorial/install-mongodb-on-os-x/">https://docs.mongodb.com/manual/tutorial/install-mongodb-on-os-x/</a> </p>
+<p>Here is another possibly useful site for macs:</p>
+<p>(<a href="https://treehouse.github.io/installation-guides/mac/mongo-mac.html">https://treehouse.github.io/installation-guides/mac/mongo-mac.html</a>) </p>
+<p class="red">You will need to figure out the install details for your own machine ahead of doing the  tutorial problems. Please let us know if you find helpful resources or solutions to problems tht you think we should post.</p>
+<p>So to proceed with part two for the tutorial you need to</p>
+<p>1)install mongodb</p>
+<p>2) start the mongodb server running on its default port 27017</p>
+<p>3) start a mongo command line client running in a separate terminal window to talk to the database.</p>
+<p>&nbsp;</p>
+<h2>Windows 10 (fall 2017)</h2>
+<p>Here are my screen captures for doing this my window's 10 computer (fall 2017 -I'm not using a windows machine anymore and this was the last time I did it on windows) . You should use the install instructions for your environment and the directions provided on the mongodb websites indicated above. Everyone's experience will be a bit different.</p>
+<p><img src="images/install1.png" alt="install1" /></p>
+<p>(It is possible to also download binary versions that can be unzipped instead of the .msi installer version. I just did the .msi installer.)</p>
+<p>My install directory looked like the following. We will be using the mongod.exe which runs the database server itself and mongo.exe which is a command-line client that can connect to the server.</p>
+<p><img src="images/install2.png" alt="install2"/></p>
+<p>&nbsp;</p>
+<p>Mongo requires a <span class="code">/data/db</span> directory to hold its data. By default it will expect it to be at the root level of the same drive that mongodb is installed on. In my case: <span class="code">c:\data\db</span>. (Note on MacOS you need to make sure the <span class="code">/data/db</span> directorty file has permissions set to allow the database access.) When you run <span class="code">mongod.exe</span> however you can specify a different data directory using the <span class="code">-dbpath</span> command line option as you will see below.</p>
+<p>To verify the installation open a command line prompt window in the same directory where mongodb executables are located and run:</p>
+<p class="code">mongod --version</p>
+<p class="code">mongo --version</p>
+<p>My version output looked as follows (fall 2017):</p>
+<p><img src="images/install2B.png" alt="install2"/></p>
+<p>&nbsp;</p>
+<p>Start up the server using a command similar to (make sure the <span class="code">data\db</span> folder exists beforehand):</p>
+<p class="code">C:\Program Files\MongoDB\Server\3.4\bin&gt;mongod.exe -dbpath c:\data\db</p>
+<p>My start up screen looked as follows:</p>
+<p><img src="images/startup1.png" alt="startup1"/></p>
+<p>&nbsp;</p>
+<p>You should notice  a bunch of files in your <span class="code">/data/db</span> directory after the server launches. The server is now running. The startup output  indicates that the server is listening for connections on port <span class="code">27017</span>. This is MongoDB's default port.</p>
+<p>You can also start up by specifying a different port and location of a data directory as follows:</p>
+<p class="code">c:\mongodb\bin\mongod.exe -port 27999 -dbpath mydir/data/db</p>
+<p>(If you don't specify your own <span class="code">data/db</span> data path mongodb will expect to use <span class="code">c:\data\db</span> as a default.)</p>
+<p>(To shut down the server you can use <span class="bold">cntl-C</span> in its command window.)</p>
+<p>&nbsp;</p>
+<p>Next we will open a mongo  command line shell client to connect to the database.</p>
+<p>Open a new command line window. <span class="red">(IMPORTANT: open a new CMD terminal window, don't try and use the one that was used to start the server -it won't work because the server has that occupied)</span> Start the mongo command line client by executing:</p>
+<p class="code">C:\Program Files\MongoDB\Server\3.4\bin&gt;mongo.exe</p>
+<p>The result should look like the following:</p>
+<p><img src="images/setup2.png" alt="setup2"/></p>
+<p>&nbsp;</p>
+<p>By default mongo connects to a database server running on <span class="code">localhost:27017</span>. (You can connect to a different host/port with mongo.exe with <span class="code">--host</span>, <span class="code">--port</span> options but we will not do so here.) </p>
+<p> To get a list of available commands in the shell  execute <span class="code">help</span> in the client shell. Do this to familiarlize yourself with some of the available commands. Also see the mongo shell methods at: <a href="https://docs.mongodb.com/manual/reference/method/">https://docs.mongodb.com/manual/reference/method/</a></p>
+<p>We are now ready to go on and add some data to a database.</p>
+<p><span class="bold">Note about users:</span> Mongo, like most databases, allows you to set up users with different access privileges. However if you have not set up users then connecting to the database from localhost will allow you to see everything, which is what we are doing here. So don't set up users, because once you do you need to log in as a specific user.</p>
+<p>&nbsp;</p>
+<h2>Mac (fall 2018)</h2>
+<p>To install mongodb on my Mac I followed the instructions at: <a href="#">https://docs.mongodb.com/manual/tutorial/install-mongodb-on-os-x</a></p>
+<p>The steps are basically this:</p>
+<p>1) install homebrew (a package manager similar to npm but for OSX software.</p>
+<p>2) <span class="code">brew update</span> //to bring the package manager up to date</p>
+<p>3) <span class="code">brew install mongodb</span></p>
+<p>4) <span class="code">sudo mkdir -p /data/db</span>  //create storage directory mongod uses by default</p>
+<p>5) set permissions to my /data/db directory<br>
+  <span class="code">cd /<br>
+  sudo chmod 777 data<br>
+cd data<br>
+sudo chmod 777 db</span> </p>
+<p>6)<span class="code">mongod</span> //run mongod</p>
+<p>&nbsp;</p>
+<h2>Linux Openstack (fall 2018)</h2>
+<p>Openstack (fall 2018): Note to get mongodb running on the fall 2018 openstack image I had to do the following</p>
+<p><br>
+  1)create a /data/db directory in the / root level.<br>
+  <span class="code">$cd /<br>
+  $sudo mkdir data<br>
+  $cd data<br>
+  $sudo mkdir db
+</span></p>
+<p>2)set the permissions of data and db directories to 777<br>
+  <span class="code">$sudo chmod 777 data<br>
+$cd db
+<br>
+  $sudo chmod 777 db
+</span></p>
+<p><br>
+</p>
+<pre>
+$ssh student@134.117.217.107
+student@134.117.217.107's password: 
+Welcome to Ubuntu 18.04.1 LTS (GNU/Linux 4.15.0-33-generic x86_64)
+
+ ...
+
+student@COMPXXXX:~$ cd /
+student@COMPXXXX:/$ ls
+bin   etc         initrd.img.old  lost+found  opt   run   sys  var
+boot  home        lib             media       proc  sbin  tmp  vmlinuz
+dev   initrd.img  lib64           mnt         root  srv   usr  vmlinuz.old
+
+student@COMPXXXX:/$ mkdir data
+mkdir: cannot create directory ‘data’: Permission denied
+student@COMPXXXX:/$ <span class="red">sudo mkdir data</span>
+[sudo] password for student: 
+student@COMPXXXX:/$ ls
+bin   dev   initrd.img      lib64       mnt   root  srv  usr      vmlinuz.old
+boot  etc   initrd.img.old  lost+found  opt   run   sys  var
+data  home  lib             media       proc  sbin  tmp  vmlinuz
+student@COMPXXXX:/$ <span class="red">sudo chmod 777 data</span>
+student@COMPXXXX:/$ cd data
+student@COMPXXXX:/data$ <span class="red">sudo mkdir db</span>
+student@COMPXXXX:/data$ ls
+db
+student@COMPXXXX:/data$ <span class="red">sudo chmod 777 db</span>
+student@COMPXXXX:/data$ <span class="red">mongod</span>
+
+...
+
+
+2018-11-13T17:55:15.941-0500 I NETWORK  [initandlisten] <span class="red">waiting for connections on port 27017</span>
+
+</pre>
+<p>In another terminal window:</p>
+<pre>
+$ssh student@134.117.217.107
+student@134.117.217.107's password: 
+Welcome to Ubuntu 18.04.1 LTS (GNU/Linux 4.15.0-33-generic x86_64)
+
+ ...
+ 
+
+student@COMPXXXX:~$ <span class="red">mongo</span>
+MongoDB shell version v3.6.7
+connecting to: mongodb://127.0.0.1:27017
+MongoDB server version: 3.6.7
+...
+<span class="red">></span> 
+</pre>
+<p>&nbsp;</p>
+<p>NOTE: in trying to get mongo running you may well get it &quot;half started&quot;. That is get it running to the point where it is occupying PORT 27017. Thus if you get an error message indicating that mongod is already running or the desired port is in use. To fix this you need to locate the process id of the running mongod server and kill it.</p>
+<p><img src="images/kill.png" width="882" height="283" alt=""/></p>
+<p>&nbsp;</p>
+<hr>
+<p>&nbsp;</p>
+<p>We are now ready to go on and learn how to use the database.</p>
+<p class="segment-header">&nbsp;</p>
+<p class="segment-header">Problem 2)</p>
+<p>This is part II of the tutorial where we will look at actually using the mongodb database. Here we assume you have the mongodb installed and its server running on its default port 27017 and you have opened a mongo client command shell to talk to the database.</p>
+<p>To create and use a new database called &quot;dbSongs&quot; execute </p>
+<p class="code">use dbSongs</p>
+<p>in the client command shell.</p>
+<p>Next to see the current database in use execute:</p>
+<p class="code">db</p>
+<p>It should show:</p>
+<p class="code">dbSongs</p>
+<p>(Note if you also  execute <span class="code">show dbs</span> you will not  see your <span class="code">dbSongs</span> database yet because nothing has been added to it. Mongodb will only create the actual database once some data has been added to it.)</p>
+<p>&nbsp;</p>
+<p><img src="images/problem2-1.png"  alt="problem2-1"/></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>Next we will create some <span class="code">song</span> objects to put in the database. The mongo command line client is a full javascript interpretation environment, just like the node.js command shell. So you can create JSON objects using javascript and then add them to the database.</p>
+<p>Create two song objects in the command shell by executing the javascript:</p>
+<p class="code">var song1 = {title: &quot;All The Things You Are&quot;, composer: &quot;Jerome Kern&quot;}<br />
+var song2 = {title: &quot;The Girl From Ipanema&quot;, composer: &quot;Antonio-Carlos Jobim&quot;}</p>
+<p>Mongodb stores JSON objects as <span class="bold">documents</span> in <span class="bold">collections</span>. (It actually stores BSON data which is a binary version of JSON strings.) To create a collection called &quot;Songs&quot; to store individual song documents execute:</p>
+<p class="code">db.getCollection(&quot;Songs&quot;)</p>
+<p>This will create the collection &quot;Songs&quot; if it does not yet exist or simply get the collection if it already exists.</p>
+<p>(To completely remove the collection &quot;Songs&quot; execute: <span class="code">db.Songs.drop()</span>)</p>
+<p>Now insert data into the <span class="code">Songs</span> collection of your <span class="code">dbSongs</span> database by executing:</p>
+<p class="code">db.Songs.insert(song1)<br />
+  db.Songs.insert(song2)
+</p>
+<p>To see the collections in the database execute:</p>
+<p class="code">show collections</p>
+<p>and you should see:</p>
+<p class="code">Songs<br />
+</p>
+<p>To see all the songs in your current database we can execute a <span class="code">find()</span> without specifying search criteria parameters:</p>
+<p class="code">db.Songs.find()</p>
+<p>Here is a screen capture showing all the above operations:</p>
+<p><img src="images/problem2-2.png" width="1364" height="612" alt="problem2-2" /></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>Notice song objects (or more correctly documents) have an &quot;_id&quot; field. This is created by mongodb as a unique identifier or key.</p>
+<p>By the way if you do: <span class="code">db.Songs.find().pretty()</span> it will format the output nicer. </p>
+<p><img src="images/problem2-2B.png"  alt="problem2-2" /></p>
+<p>&nbsp;</p>
+<p>To find a song with the title &quot;The Girl From Ipanema&quot; execute:</p>
+<p class="code">db.Songs.find({title: &quot;The Girl From Ipanema&quot;})</p>
+<p>On the other hand, to find any song whose title has &quot;Things&quot; as a substring you can execute</p>
+<p class="code">db.Songs.find({title: /Things/})</p>
+<p>This last example uses regular expressions which can be complex and finicky in the mongo command shell.</p>
+<p><img src="images/problem2-3.png" width="1364" height="254" alt="problem2-3" /></p>
+<p>&nbsp;</p>
+<p>For documentation of using the mongo shell see: <a href="https://docs.mongodb.com/manual/mongo">https://docs.mongodb.com/manual/mongo/</a></p>
+<p>For example to delete any song titled &quot;Happy Birthday&quot; execute:</p>
+<p class="code">db.Songs.deleteMany({title:&quot;Happy Birthday&quot;})</p>
+<p>to delete any song whose title contains the substring &quot;Happy&quot; execute:</p>
+<p class="code">db.Songs.deleteMany({title:/Happy/})</p>
+<p>To delete all the documents in a collection pass an empty object to remove:</p>
+<p class="code">db.Song.remove({})</p>
+<p>To delete an entire collection say myCollection:</p>
+<p class="code">db.myCollection.drop()</p>
+<p>To delete an entire database:</p>
+<p class="code">db.dropDatabase()</p>
+<p class="code">&nbsp;</p>
+<p class="segment-header">Problem 3) Accessing MongoDB from Node.js</p>
+<p>Here we assume you have the mongodb server running from the previous questions and a Node.js environment set up. We will <span class="code">require</span> a npm <span class="code">mongodb</span> driver module in our node.js app and use it to access the database.</p>
+<p>Open a new command line terminal window on the <span class="code">demo_code</span> folder. To access the database from your node application you will need to install the <span class="code">mongodb</span> npm module first. A <span class="code">package.json</span> file is provided that already has the <span class="code">mongodb</span> module dependency included. To install the npm <span class="code">mongodb</span> module execute:</p>
+<p class="code">npm install</p>
+<p>With mongodb module installed, you should be able to run the node application in: <span class="code">01_db_access.js</span> (the code looks like the following:)</p>
+<p>&nbsp;</p>
+<pre>
+const MongoClient = require('mongodb').MongoClient
+const DB_URL = 'mongodb://localhost:27017'
+const db_name = 'dbSongs'
+
+
+MongoClient.connect(DB_URL, { useNewUrlParser: true }, function(err, client){
+
+   if(err) console.log(`FAILED TO CONNECTED TO: ${DB_URL}`)
+   else{
+      console.log(`CONNECTED TO: ${DB_URL}`)
+      const col = client.db(db_name).collection('Songs')
+      col.find({}).toArray(function(err, items){
+        //console.log(items)
+        for(let song of items) {
+          console.log(song)
+        }
+        client.close()
+      })
+   }
+})
+</pre>
+<p>When this is run it should log to the console the documents currently in the <span class="code">Songs</span> collection of the <span class="code">dbSongs</span> database: </p>
+<p><img src="images/problem3-1.png"  alt="problem3-1"/></p>
+<p>&nbsp;</p>
+<p class="segment-header">&nbsp;</p>
+<p class="segment-header">Problem 4) Inserting Data to MongoDB from Node.js</p>
+<p></p>
+<p>Next run the application <span class="code">02_db_insert.js</span> that inserts data into the mongo database. The code is as shown below. Each time you run this  file you should see an additional document added (use the app from the previous problem to see the new documents). You can now also experiment with removing documents and finding documents based on a criteria of interest. Also you can check the effects your node.js app has on the database by just using the mongo.exe client shell as we did in problem 2.</p>
+<p>&nbsp;</p>
+<pre>
+const MongoClient = require('mongodb').MongoClient
+const DB_URL = 'mongodb://localhost:27017'
+const db_name = 'dbSongs'
+
+MongoClient.connect(DB_URL, {
+  useNewUrlParser: true
+}, function(err, client) {
+  if (err) {
+    console.log(`FAILED TO CONNECTED TO: ${DB_URL}`)
+  } else {
+    console.log(`CONNECTED TO: ${DB_URL}`)
+    const col = client.db(db_name).collection('Songs')
+    col.insert({
+      title: "Happy Birthday",
+      composer: "Anonymous"
+    }, function(err, result) {
+      console.log(result)
+      client.close()
+    })
+  }
+})
+</pre>
+<p>Below is the result of running the <span class="code">02_db_insert.js</span> once:</p>
+<p><img src="images/problem3-2.png"  alt="problem3-2"/></p>
+<p>&nbsp;</p>
+<p>For more examples of using the mongodb npm in module in a node.js application see: <a href="https://www.npmjs.com/package/mongodb">https://www.npmjs.com/package/mongodb</a></p>
+
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p class="segment-header">Problem 5) Inserting RealBook Song Data into MongoDB Database</p>
+<p></p>
+<p>In the demo code we have provided you with a simple node.js application <span class="code">03_parse_songs.js</span> that currently parses a sample file <span class="code">songs/sample_songs.txt</span> of song data from the iRealPro iPad app and places the resulting JSON objects in a <span class="code">songs/output.txt</span> file. Run this app to get familiar with the code.</p>
+<p>Now modify this code so that it writes the individual parsed songs to the mongodb database's <span class="code">Songs</span> collection instead of, or as well as, the <span class="code">output.txt</span> file. That is, replace the code that writes to the output file with code that would connect to and write to the database instead. You should put the individual songs in a &quot;Songs&quot; collection of a mongodb database. After completing this you should see the following content in the mongodb database:</p>
+<p>&nbsp;</p>
+<p><img src="images/problem5.png" width="953" height="880" alt="problem5" /></p>
+<p></p>
+<p></p>
+<p></p>
+<p class="segment-header">Problem 6) Introducing Mongoose</p>
+<p></p>
+<p>Instead of using the <span class="code">mongodb.js</span> npm module many node.js applications use <span class="code">mongoose.js</span> instead (we will likely use it as well in assignment #5). </p>
+<p>Learn about mongoose.js at: <a href="http://mongoosejs.com">http://mongoosejs.com</a></p>
+<p>Mongoose is an npm module that provides schema-oriented access to a mongodb database. Schemas are to data what classes are to objects. That is, a schema describes what properties certain data documents will have. It is typically intended for situations where all the documents in a collection are meant to have the same properties. In relational databases, which are based on tables, the schema describes what the table columns are and the rows in the tables are the actual data.</p>
+<p>To use mongoose in node.js you have to install the <span class="code">mongoose</span> npm module:</p>
+<p class="code">npm install mongoose</p>
+<p>Next look the contents of the demo file <span class="code">04_mongoose.js</span>:</p>
+<pre>
+const mongoose = require('mongoose')
+
+//Create a schema that describes what properities cats have
+var catSchema = mongoose.Schema({
+    name: String,
+    favouriteToy: String
+})
+
+//Create a model based on cat Schema
+//A model is a class with which documents are created.
+//A model wraps the schema in useful methods like .save(), .find()
+
+var Cat = mongoose.model('Cat', catSchema)
+
+//connect to database and add documents
+mongoose.connect('mongodb://localhost/cats', { useNewUrlParser: true }, function(err){
+
+   if (err) throw err
+   console.log('Successfully connected to mongodb')
+
+   let catsToAdd = []
+   catsToAdd.push(new Cat({name: "Bowie", favouriteToy: "BusyBee"}))
+   catsToAdd.push(new Cat({name: "O'Grady", favouriteToy: "Yarn"}))
+   catsToAdd.push(new Cat({name: "Zoom", favouriteToy: "Toes"}))
+   catsToAdd.push(new Cat({name: "Chatner", favouriteToy: "Mr. Spock"}))
+
+   for(let i=0; i&lt;catsToAdd.length; i++){
+      catsToAdd[i].save(function(err, cat){
+        console.log(`saving: ${catsToAdd[i].name}`)
+      })
+   }
+})
+</pre>
+<p>Observe the following:</p>
+<ul>
+<li>A <span class="bold">schema</span> <span class="code">catSchema</span> is created that describes the properties all cats will have.</li>
+<li>A <span class="bold">model</span> is created from the schema. Models are classes used to create the documents that correspond to the schema. Models also wrap the schema in useful methods like <span class="code">.save()</span> and <span class="code">.find()</span> etc.</li>
+<li>A cat document is created from the model using <span class="code">new</span>.</li>
+<li>Saying <span class="code">.save()</span> to a model is what actually writes the document to the database.</li>
+</ul>
+<p>&nbsp;</p>
+<p>With mongodb running on its default port <span class="code">27017 </span>run the demonstration file and observe that four cat documents are added to mongodb:</p>
+<p>node 04_mongoose.js:<br>
+  <img src="images/problem6-2.png" width="470" height="222" alt=""/>  <br>
+</p>
+<p>mongo:<br>
+<img src="images/problem6-1.png" width="1326" height="212" alt=""/></p>
+<p>&nbsp;</p>
+<p>Hit Cntrl-C in the terminal running <span class="code">04_mongoose.js</span> to get the terminal prompt back and run it a second time.  Notice another set of &quot;duplicate&quot; cats is added.</p>
+<p><img src="images/problem6-3.png" width="1320" height="277" alt=""/></p>
+<p >&nbsp;</p>
+<p >For this problem we want you to fix the two issues observed above 1) that we need to Cntl-C in the terminal running  <span class="code">04_mongoose.js</span> and 2) that duplicates are being added.</p>
+<p >The following can be used to remove all cat documents from the cats collection:</p>
+<pre>
+var Cat = mongoose.model('Cat', catSchema) //given
+//...
+Cat.deleteMany({}, function(err){ //remove existing cat documents
+  if(err) {
+    console.log('ERROR: Remove failed')
+    return
+  }
+  //ALL CAT DOCUMENTS REMOVED
+}</pre>
+<p>Also the following expression executed in  <span class="code">04_mongoose.js</span> will disconnect from the database and return the terminal to its regular prompt:</p>
+<p class="code">mongoose.disconnect()</p>
+<p>Given that <span class="code">.save()</span>, <span class="code">.remove()</span>, <span class="code">.connect()</span>, and <span class="code">.disconnect()</span> are all <span class="bold">asynchronous</span> functions, add the <span class="code">.remove()</span> and <span class="code">.disconnect()</span> expressions to <span class="code">04_mongoose.js</span> so that the code exits properly to the terminal prompt and so that existing cats are first removed before the new ones are added. (That is, we don't get duplicates anymore. When you have completed this <span class="code">04_mongoose.js</span> will now be <span class="bold">idempotent</span>. That means that the effect of running it several times is the same as the effect of running it only once. The concept of idempotency is fundamental to databases and the code that uses them.</p>
+<p>&nbsp;</p>
+	
+<p class="red">When you have completed these exercises show your results to the TA's to get credit for the tutorial.</p>
+<p>&nbsp;</p>
+
+</body>
+</html>

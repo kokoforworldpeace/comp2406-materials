@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Page Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+    <div id="div1" style="visibility : hidden">
+
+        <h1>hidden</h1>
+
+    </div>
+
+    <div id="div2">
+
+        <h1>you can see me now</h1>
+
+        <form id="form1" method="POST" action="/">
+            <label> your name</label>
+            <input name="name" type="text">
+            <label>color</label>
+            <input name="color" type="text">
+            <label>team</label>
+            <input name="team" type="checkbox" value="team1">team1
+            <input name="team" type="checkbox" value="team2">team2
+
+        </form>
+        <button type="submit" onclick="handleClick()">submit </button>
+
+    </div>
+
+</body>
+<script>
+    let arr = []
+
+    function handleClick() {
+        document.getElementById("div1").style.visibility = "visible";
+
+        for (const pair of new FormData(document.getElementById('form1'))) {
+            arr.push({
+                key: pair[0],
+                value: pair[1]
+            })
+        }
+        console.log(arr)
+        fetch('http://localhost:3000/token', {
+            method: 'post',
+            body: arr,
+        }).then(function (response) {
+            return response.json();  //resp.jason()  return resp object
+        })
+            .then(function (response) {
+                console.log(typeof response.token)
+                if (response['token'] == true) {
+                    document.getElementById('div1').style = { "visibility": "visible" }
+                }
+                console.log('Success:', JSON.stringify(response))
+
+            })
+        console.log(arr)
+
+    }//end handleclick
+    window.addEventListener("beforeunload", () => {
+        fetch('http://localhost:3000/unload', {
+            method: 'post',
+            body: { "unload": true },
+        })
+    })
+
+
+
+
+
+// const data = new URLSearchParams();
+
+// console.log(data)
+
+
+
+
+
+</script>
+
+</html>

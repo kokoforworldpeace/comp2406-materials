@@ -1,0 +1,7 @@
+extends layout
+
+block content
+  h1= title
+
+  each row in userEntries
+    p UserID: #{row.userid} Password: #{row.password}

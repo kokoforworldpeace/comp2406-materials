@@ -1,0 +1,16 @@
+{
+  "name": "chat_collaboration_with_socketio",
+  "version": "1.0.0",
+  "description": "basic chat server with socket.io",
+  "main": "app.js",
+  "scripts": {
+    "test": "node app.js"
+  },
+  "author": "L.D. Nel",
+  "license": "ISC",
+  "dependencies": {
+    "ecstatic": "^3.3.0",
+    "save": "^2.3.2",
+    "socket.io": "^2.1.1"
+  }
+}

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>assignment 3</title>
+    <script src="jquery-1.11.3.js"></script>
+    <script src="socket.io/socket.io.js"></script>
+  </head>
+  <body>
+
+  <!-- <div id="draw2"></div> -->
+  <div id="draw1" style="visibility:hidden"></div>
+
+
+  <div id="div2" style="visibility:visible">
+
+    <h1>please login</h1>
+    
+    <form id="form" method = "post" action="/">
+        <label > your name</label>
+        <input name="name" type="text" > 
+        <label >color</label>
+        <input name="color" type="text" value="red"> 
+        <label >team</label>
+        <input name="team" type="checkbox" value="team1" checked>team1
+        <input name="team" type="checkbox" value="team2">team2
+
+    </form>
+    <button type="submit" onclick="handleSubmit()">submit   </button>
+
+  </div>
+
+  </body>
+  
+  <script src="client.js"></script>
+
+</html>

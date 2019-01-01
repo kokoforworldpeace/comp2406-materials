@@ -1,0 +1,8 @@
+extends layout
+
+block content
+  h1= title
+  ul
+    each row in songEntries
+      li 
+        a(href = 'song/#{row.id}') #{row.id} #{row.title}

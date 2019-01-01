@@ -1,0 +1,9 @@
+extends layout
+
+block content
+  h1= title
+  each row in songEntries
+    h1 #{row.title}
+    p composer: #{row.composer}
+    p key: #{row.key}
+    p bars: #{row.bars}

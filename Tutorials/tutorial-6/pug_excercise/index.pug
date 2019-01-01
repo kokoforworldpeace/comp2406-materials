@@ -1,0 +1,13 @@
+doctype html
+html
+    head this is a pug tutorial
+    body
+        h1#id1 heading one
+        block classes1
+        p.class1.class2(src="adsf") aasdfasdf
+            
+        .container
+            - const att = {"src":"/imgsrc","alt":"alternative"}
+            .class2#id2
+                - const att2 = {"src":"/imgsrc2","alt":"alternative"}
+                img&attributes(att)

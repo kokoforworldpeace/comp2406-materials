@@ -1,0 +1,82 @@
+<!-- Stuff goes here! -->
+<!DOCTYPE html>
+<!--
+- Example shows drawing strings on the canvas and
+  dragging individual strings around with the mouse.
+  
+  In this example the HTML elements are not being
+  dragged. The strings are javascript objects.
+  
+  When the canvas reacts to the mouse down event
+  other event handlers will be added to the DOM
+  to handle the mouse move and mouse release
+  
+  Notice in this source file there are no pre-attached
+  event handlers. They will be added using jQuery in the
+  supporting javascript file.
+
+
+-->
+<html>
+   <head>
+     <title>Canvas Size</title>
+     <script src="jquery-3.3.1.min.js"></script>
+     
+      <style> 
+         body {
+            background: #bcd1ce;
+         }	
+		 
+		 /*element selectors: */
+		 canvas {
+		    margin: 10px;
+			/*important here for padding to be 0 for mouse calculations */
+        padding: 0px; 
+		 }
+		 
+		 /* class selectors: */
+		 .canvas {            
+            background: white;
+            border: thin inset black;
+         }
+
+         /*id selectors: */		 
+         #canvas1 {
+         }
+		  
+ 
+      </style>
+   </head>
+
+  <body>
+    <input type="button" id="songs" value="?" onclick="help()" width="20px" height="20px" style="width:30px; height: 30px; border-radius:100%; font-size: 20px; border-color:#42afa0; background-color: #42afa0">
+    <div style = "margin-bottom: 20px; max-width: 739px; margin-left: auto; margin-right: auto">
+      <div style="overflow: scroll; margin-bottom: 20px; max-height: 400px; max-width: 739px; margin-left: auto; margin-right: auto">
+        <canvas id='canvas1' class='canvas' width='700px' height='3200px' style="position: relative; border-radius: 12px"> canvas not supported </canvas>
+        <p style="text-align: center"> BOTTOM </p>
+        <p style="text-align: center"> Note that the canvas height is limited to 3200px! <br> Longer chord pro files may not display entirely :'( </p>
+      </div>
+        <div>
+          <input type = "text"  id="userTextField" name = "userTextField"  value="" style="width:500px; border-radius: 0px"/>
+          <input type="button" value="Submit Request [enter]" onClick="handleSubmitButton()" style="margin-left: auto; width:231px; background-color:white">
+        </div>
+        <div>
+            <input type="button" value="Reload Last Song" onClick="handleAlignButton()" style=" min-width: 100%; background-color:white">
+        </div>
+        <div>
+          <input type="button" value="Transpose Up [->]" onClick="handleTransposeUpButton()" style=" min-width: 49.7%; background-color:white">
+          <input type="button" value="Transpose Down [<-]" onClick="handleTransposeDownButton()" style=" min-width: 49.7%; background-color:white">
+        </div>
+        <div>
+            <input type="button" id="saveas" value="Save as" onClick="saveAs()" width="739px" style="width: 49.7%; background-color:white">
+            <input type="button" id="refresh" value="Refresh" onClick="refresh()" width="739px" style="width: 49.7%; background-color:white">
+        </div>
+        <div id="text-area" style="font-style: italic; color:black; margin-left: auto; margin-right: auto"></div>
+        <footer style="text-align: center; padding-top:3px; border-top: 5px solid black; margin-top: 50%">
+            Words are resized to fit withing the canvas's width! <br> <br>
+        </footer>
+    </div>
+
+    <script src='client.js'></script>
+  </body>
+</html>

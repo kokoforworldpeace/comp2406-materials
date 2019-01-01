@@ -1,0 +1,30 @@
+extends layout
+
+block header
+  script(src="javascripts/jquery-1.12.1.js")
+  script(src="javascripts/Chart.js")
+
+block content
+  h1= title
+
+  p.
+    Show a graph of the daily frequency of log entries.  Make sure to do the following:
+  ul
+     li There should be a prominent link to Home (/) at the bottom of the page.
+     li Show the query that produced the selected logs.  List the values of any filled in selectors, e.g., 'message = "shutdown at .* successfully"'
+     li The graph X axis should label each bar with the date of each date, e.g. "Feb 16"
+     li the graph Y axis should be the count of entries on each date.
+  p.
+    You may use the graph package we showed you in tutorial.
+    However, you may find that graphs are easier to make with the
+    <a href="http://www.chartjs.org/docs/">chartjs</a>
+    graphing package.  See the example graph below.
+    Note that it uses client-side JavaScript but
+    with the data being embedded in the source of this page by Jade.
+
+  center
+    canvas(id="myChart", width="400", height="400")
+  script!= theData
+  script.
+    var ctx = $("#myChart").get(0).getContext("2d");
+    var myBarChart = new Chart(ctx).Bar(data, {});

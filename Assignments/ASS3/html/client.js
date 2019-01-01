@@ -1,0 +1,486 @@
+
+
+const window_width = window.innerWidth
+const window_height = window.innerHeight
+const startX = 800
+const startY = 600
+const ball_radius = 15 //actual radius
+
+
+
+
+
+
+
+let team1 = [
+  { name: `ball1`, x: startX + ball_radius, y: startY - ball_radius, x_speed: 0, y_speed: 0, direction: [0, 0], color: `red` },
+  { name: `ball2`, x: startX + 3 * ball_radius, y: startY - ball_radius, x_speed: 0, y_speed: 0, direction: [0, 0], color: `red` },
+  { name: `ball3`, x: startX + 5 * ball_radius, y: startY - ball_radius, x_speed: 0, y_speed: 0, direction: [0, 0], color: `red` }
+]
+
+let team2 = [
+  { name: `ball4`, x: startX + 7 * ball_radius, y: startY - ball_radius, x_speed: 0, y_speed: 0, direction: [0, 0], color: `yellow` },
+  { name: `ball5`, x: startX + 9 * ball_radius, y: startY - ball_radius, x_speed: 0, y_speed: 0, direction: [0, 0], color: `yellow` },
+  { name: `ball6`, x: startX + 11 * ball_radius, y: startY - ball_radius, x_speed: 0, y_speed: 0, direction: [0, 0], color: `yellow` }
+]
+
+
+
+
+
+let player = {
+  name: 'bob',
+  color: 'red',
+  balls: team1,
+  teamName: 'team1'
+}
+// let playerInfo = player
+
+
+
+let playerNumber = 1
+let state = {
+  playerNumber:playerNumber,
+  players:[player]
+}
+
+
+
+let selectedBall //one word object
+let hit_ball
+let deltaX, deltaY //mouseX - word.x
+let x_speed = 0
+let y_speed = 0
+
+
+let socket = io("http://" + window.document.location.host)
+
+
+
+function drawCanvas() {
+
+
+
+  //draw svg background
+  let container1 = document.getElementById('draw1')
+
+  let ball_svg_s = ''
+  let ball_svg_l = ''
+
+// debugger
+
+  for (let p of state.players) {//[{player1},{player2}]
+    for (let ballD of p.balls) {
+      ball_svg_s += `<ellipse   rx=${ball_radius - 5}  cy=${ballD.y} cx=${ballD.x} stroke-width="5" stroke="grey" fill=${p.color} />`
+      //big circle
+      if (ballD.y < 200) {
+        ball_svg_l += `<ellipse   rx=${(ball_radius - 5) * 3}  cy=${ballD.y * 3} cx=${(ballD.x - startX) * 3} stroke-width="15" stroke="grey" fill=${p.color} />`
+      }
+    }
+
+    //small circle
+
+  }
+
+
+
+  //draw canvas
+  //600*600
+  //200*500
+  container1.innerHTML = `<svg id = "svg"xmlns = "http://www.w3.org/2000/svg" width = ${window_width} height = ${window_height}>
+
+  <ellipse   rx="225" id="svg_1" cy="300" cx="300" stroke-width="75" stroke="blue" fill="#fff"/>
+  <ellipse   rx="75" id="svg_2" cy="300" cx="300" stroke-width="75" stroke="red" fill="#fff"/>
+
+  <ellipse   rx="75" id="svg_3" cy="100" cx=${startX + 100} stroke-width="25" stroke="blue" fill="#fff"/>
+  <ellipse   rx="25" id="svg_4" cy="100" cx=${startX + 100} stroke-width="25" stroke="red" fill="#fff"/>
+  <line  id="svg_5" y2=${startY} x2=${startX} y1="0" x1=${startX} stroke-width="1.5" stroke="#000" fill="none"/>
+  <line  id="svg_6" y2=${startY} x2= ${startX + 200} y1=${startY} x1=${startX} stroke-width="1.5" stroke="#000" fill="none"/>
+  <line  id="svg_5" y2=${startY} x2=${startX + 200} y1="0" x1=${startX + 200} stroke-width="1.5" stroke="#000" fill="none"/>
+  ${ball_svg_s}
+  ${ball_svg_l}
+  </svg>`;
+
+
+
+}
+
+
+
+
+//return ball object
+function getBall(mouseX, mouseY) {
+
+  // console.log(player.balls)
+
+  for (var i = 0; i < player.balls.length; i++) {
+    let ballG = player.balls[i]
+    // debugger
+    if ((mouseX > ballG.x - ball_radius && mouseX < ballG.x + ball_radius)
+      && (mouseY > ballG.y - ball_radius && mouseY < ballG.y + ball_radius
+      )) {
+      console.log('select : ' + ballG.name)
+      return ballG
+    }
+  }
+  return null
+
+}//end getBall
+
+
+function handleMouseDown(e) {
+
+  console.log("mouse down:" + e.pageX + ", " + e.pageY)
+
+  selectedBall = getBall(e.pageX, e.pageY)
+
+  console.log(selectedBall);
+
+  if (selectedBall != null) {
+    deltaX = selectedBall.x - e.pageX
+    deltaY = selectedBall.y - e.pageY
+    //document.addEventListener("mousemove", handleMouseMove, true)
+    //document.addEventListener("mouseup", handleMouseUp, true)
+    $("#draw1").mousemove(handleMouseMove)
+
+    $("#draw1").mouseup(handleMouseUp)
+
+  }
+
+
+  e.stopPropagation()
+  e.preventDefault()
+
+  drawCanvas()
+}//end mousedown
+
+
+function handleMouseMove(e) {
+  console.log("move")
+
+  let curr_x = selectedBall.x
+  let curr_y = selectedBall.y
+
+  selectedBall.x = e.pageX + deltaX
+  selectedBall.y = e.pageY + deltaY
+
+  x_speed = selectedBall.x - curr_x
+  y_speed = selectedBall.y - curr_y
+
+
+  e.stopPropagation()
+  drawCanvas()
+  // isCollision(allBalls[0])
+}//end mousemove
+
+
+function handleMouseUp(e) {
+  console.log("mouse up")
+  //update ball speed
+  selectedBall.x_speed = x_speed
+  selectedBall.y_speed = y_speed
+
+
+  e.stopPropagation()
+
+  $("#draw1").off("mousemove", handleMouseMove) //remove mouse move handler
+  $("#draw1").off("mouseup", handleMouseUp) //remove mouse up handler
+
+drawCanvas()
+}//end mouseup
+
+function updateBall(ball) {
+  hitBoundary(ball)
+
+  if (isCollision(ball)) {
+    let dist_to_hit_ball = (ball.x - hit_ball.x) * (ball.x - hit_ball.x) + (ball.y - hit_ball.y) * (ball.y - hit_ball.y)
+    if (Math.sqrt(dist_to_hit_ball) < 2 * ball_radius - 5) {
+      // console.log(`hit_ball : ${hit_ball.x_speed}`);
+      let apartSpeed = 1
+      ball.x_speed += ball.direction[0] * apartSpeed
+      ball.y_speed += ball.direction[1] * apartSpeed
+
+      hit_ball.x_speed += hit_ball.direction[0] * apartSpeed
+      hit_ball.y_speed += hit_ball.direction[1] * apartSpeed
+
+    }
+
+  }
+
+  //write direction
+  ball.direction = getDirection(ball)
+
+  //speed to coor
+  // ball.x_speed = ball.x_speed
+  // ball.y_speed = ball.y_speed
+
+  if (Math.abs(ball.y_speed) < 0.98) {
+    ball.y_speed = 0
+  }
+  if (Math.abs(ball.x_speed) < 0.98) {
+    ball.x_speed = 0
+  }
+
+  ball.y += ball.y_speed
+  ball.y_speed *= 0.95
+
+  ball.x += ball.x_speed
+  ball.x_speed *= 0.95
+
+  drawCanvas()
+}//end updateBall
+
+//return array dirc
+function getDirection(ball) {
+  //-1 +1
+  let dirc = []
+
+  if (ball.x_speed > 0) {
+    if (ball.y_speed > 0) {
+      dirc = [1, 1]
+    } else {
+      dirc = [1, -1]
+    }
+  } else {//x_speed<0
+    if (ball.y_speed > 0) {
+      dirc = [-1, 1]
+    } else {
+      dirc = [-1, -1]
+    }
+  }
+  return dirc
+}//end getDirection
+
+function hitBoundary(movingBall) {
+  if (movingBall.x < startX + ball_radius) {
+    movingBall.x_speed = 0
+    movingBall.x = startX + ball_radius
+  } else if (movingBall.x > startX + 200 - ball_radius) {
+    movingBall.x_speed = 0
+    movingBall.x = startX + 200 - ball_radius
+  }
+  if (movingBall.y < ball_radius) {
+    movingBall.y_speed = 0
+    movingBall.y = ball_radius
+  }
+
+}//end hitBoundary
+
+function ballCollision(ball1, ball2) {//change ball1, ball2 speed
+
+  let dx = Math.abs(ball1.x - ball2.x)
+  let dy = Math.abs(ball1.y - ball2.y)
+  let ball1_v = Math.sqrt(ball1.x_speed * ball1.x_speed + ball1.y_speed * ball1.y_speed)
+
+  if (ball1_v === 0) {//handle error divide 0
+    ball1_v += 1e-12
+  }
+
+  let dist = Math.sqrt(dx * dx + dy * dy)
+
+  if (dist == 0) {
+    console.log("warning!!!");
+    return
+  }
+
+  let angle_b = Math.asin(dy / dist)
+  let angle_d = Math.asin(Math.abs(ball1.x_speed) / ball1_v)//error!!
+  let angle_a = (Math.PI / 2) - angle_b - angle_d;
+  let angle_c = angle_b - angle_a;
+
+  let v1 = ball1_v * Math.abs(Math.sin(angle_a))
+  let v2 = ball1_v * Math.abs(Math.cos(angle_a))
+
+  let v1x = v1 * Math.abs(Math.cos(angle_c));
+  let v1y = v1 * Math.abs(Math.sin(angle_c));
+  let v2x = v2 * Math.abs(Math.cos(angle_b));
+  let v2y = v2 * Math.abs(Math.sin(angle_b));
+
+  //         //set horizontal directions
+  if (ball1.x_speed > 0) {//ball1 is going right
+    if (ball1.x < ball2.x) {
+      v1x = -v1x;
+
+    } else {
+      v2x = -v2x;
+    }
+  } else {
+
+    if (ball1.x > ball2.x) {
+      v2x = -v2x;
+
+    } else {
+      v1x = -v1x;
+    }
+  }
+  //         //set vertical directions
+  if (ball1.y_speed > 0) {//ball1 is going right
+    if (ball1.y < ball2.y) {
+      v1y = -v1y;
+
+    } else {
+      v2y = -v2y;
+    }
+  } else {
+    if (ball1.y > ball2.y) {
+      v2y = -v2y;
+
+    } else {
+      v1y = -v1y;
+    }
+  }
+
+  ball1.x_speed = v1x
+  ball1.y_speed = v1y
+  ball2.x_speed = v2x
+  ball2.y_speed = v2y
+
+  // console.log(ball2);
+  return
+}//end ballcollision
+
+socket.on("ballOBJ", function (data) {
+  console.log(`socket received data : ${data}`);
+  let dataObj = JSON.parse(data)
+
+  for (let p of state.players) {//[{player1},{player2}]
+  for (let ballS of p.balls) {
+    if (dataObj.name === ballS.name) {
+      // ball.name = dataObj.name
+      ballS.x = dataObj.x
+      ballS.y = dataObj.y
+      updateBall(ballS)
+    }
+  }
+}
+})
+
+function handleTimer() {//trigger every 100
+  let ball_coor = {}
+  for (let p of state.players) {//[{player1},{player2}]
+  for (let ballT of p.balls) {
+    if (ballT.x_speed !== 0 || ballT.y_speed !== 0) {
+      console.log("speed")
+      ball_coor.name = ballT.name,
+        ball_coor.x = ballT.x,
+        ball_coor.y = ballT.y,
+        //send when exits ball move
+        socket.emit("ballOBJ", JSON.stringify(ball_coor))
+    }
+    // }else {
+    //   break
+    // }
+    updateBall(ballT)
+
+  }
+}
+}
+
+function isCollision(movingBall) {
+  for (let p of state.players) {//[{player1},{player2}]
+    for (let ballC of p.balls) {
+    if (ballC.x_speed !== 0 || ballC.y_speed !== 0) {
+
+      continue
+    }
+
+    let dist = (movingBall.x - ballC.x) * (movingBall.x - ballC.x) + (movingBall.y - ballC.y) * (movingBall.y - ballC.y)
+    if (dist > 0 && Math.sqrt(dist) < 2 * ball_radius - 5) { //-5 margin
+      // console.log(dist);
+      hit_ball = ballC
+      ballCollision(movingBall, hit_ball)
+      return true
+    }
+  }
+}
+
+}//end isCollision
+
+function handleSubmit() {
+
+  //get form data put in player object
+  for (let pair of new FormData(document.getElementById('form'))) {
+    if (pair[0] == 'name') {
+      player.name = pair[1]
+    }
+    if (pair[0] == 'color') {
+      player.color = pair[1]
+    }
+    if (pair[0] == 'team') {
+      if (pair[1] == 'team1') {
+        player.balls = team1
+        player.teamName = 'team1'
+      } else {
+        player.balls = team2
+        player.teamName = 'team2'
+      }
+    }
+
+  }
+  $("#div2").css("visibility", "hidden")
+  $("#draw1").css("visibility", "visible")
+
+
+  console.log(player)
+  // console.log(JSON.stringify(playerInfo))
+
+
+
+  fetch('http://localhost:3000/token', {
+    method: 'POST',
+    // let player = {
+    //   name: 'bob',
+    //   color: 'red',
+    //   balls: team1,
+    //   teamName:'team1',
+    // }
+    body: JSON.stringify(player)
+  }).then(resp => { return resp.json() })
+    .then(function (data) {
+      console.log("fetch data: " + JSON.stringify(data))
+      // let sendBackObj = {//send back
+      //   token: grantToken,
+      //   state:state = {
+      //   //   playerNumber:playerNumber,
+      //   //   players:[]
+      //   // }
+      // }
+      state = data.state
+      // debugger
+      playerNumber = state.playerNumber
+
+      if (data.token == false) {
+        $("#draw1").off("mousedown")//click
+      }
+ 
+
+    })
+  // debugger
+  
+  
+
+}
+
+$(document).ready(function () {
+
+  drawCanvas()
+  $("#draw1").mousedown(handleMouseDown)
+  moving_timer = setInterval(handleTimer, 30)
+
+
+
+  window.addEventListener("beforeunload", (e) => {
+    fetch('http://localhost:3000/unload', {
+      method: 'POST',
+      body: {
+        "unload": true,
+        "player": JSON.stringify(player)
+      }
+    })
+  })
+
+  // ballCollision(allBalls[0],allBalls[1])
+  // console.log(allBalls[0],allBalls[1]);
+})
+
+

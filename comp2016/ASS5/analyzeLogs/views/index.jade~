@@ -1,0 +1,41 @@
+extends layout
+
+block content
+  h1= title
+
+  p Currently we have #{numFiles} log files to analyze containing #{numEntries} entries.
+
+  h2 Log Query
+  form(method="post", action="/doQuery")
+    fieldset
+      div
+        label Message?
+        input#message(type="text", name="message")
+      div
+        label Service?
+        input#service(type="text", name="service")
+      div
+        label File?
+        input#file(type="text", name="file")
+      div
+        label Month?
+        input#month(type="text", name="month")
+      div
+        label Day?
+        input#day(type="text", name="day")
+      div
+        label Output Type:
+        select(id="queryType", name="queryType")
+          option(value="show", selected) Show
+          option(value="visualize") Visualize
+          option(value="download") Download
+    br
+    button(type="submit") Submit Log Query
+
+  br
+  form#uploadForm(method="post", enctype="multipart/form-data", action="/uploadLog")
+    fieldset
+      label Log File to Upload
+      input(type="file", name="theFile")
+    br
+    button(type="submit") Upload Log File
